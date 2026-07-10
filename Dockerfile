@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- deps ----------
-FROM node:24-alpine AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # ---------- runtime ----------
-FROM node:24-alpine AS runtime
+FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
