@@ -23,7 +23,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD-SHELL", "pg_isready -d ${DB_NAME} -U ${DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -41,3 +41,4 @@ networks:
 
 volumes:
   postgres-data:
+
