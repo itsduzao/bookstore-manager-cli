@@ -1,5 +1,6 @@
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, Interface } from "node:readline/promises";
+import { formatFeedback } from "../feedback";
 import { AskIntOptions } from "../types";
 import { CliIO } from "./types";
 
@@ -22,17 +23,17 @@ export class CLIReadLine implements CliIO {
       const { min, max } = options ?? {};
 
       if (!Number.isInteger(value)) {
-        console.log("[ERRO] Digite um número inteiro válido.");
+        console.log(formatFeedback("warning", "Digite um número inteiro válido."));
         continue;
       }
 
       if (min !== undefined && value < min) {
-        console.log(`[ERRO] O valor deve ser >= ${min}.`);
+        console.log(formatFeedback("warning", `O valor deve ser >= ${min}.`));
         continue;
       }
 
       if (max !== undefined && value > max) {
-        console.log(`[ERRO] O valor deve ser <= ${max}.`);
+        console.log(formatFeedback("warning", `O valor deve ser <= ${max}.`));
         continue;
       }
 
@@ -54,7 +55,7 @@ export class CLIReadLine implements CliIO {
         return answer;
       }
 
-      console.log(`[ERRO] Opção inválida. Use uma das opções: ${options.join(", ")}.`);
+      console.log(formatFeedback("warning", `Opção inválida. Use uma das opções: ${options.join(", ")}.`));
     }
   }
 
@@ -65,7 +66,7 @@ export class CLIReadLine implements CliIO {
       if (answer === "s") return true;
       if (answer === "n") return false;
 
-      console.log("[ERRO] Responda com S ou N.");
+      console.log(formatFeedback("warning", "Responda com S ou N."));
     }
   }
 

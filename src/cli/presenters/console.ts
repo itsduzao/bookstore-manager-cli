@@ -1,7 +1,10 @@
+import { formatFeedback } from "../feedback";
 import { MenuOption } from "../types";
 import { UiPresenter } from "./types";
 
 export class ConsolePresenter implements UiPresenter {
+  private pendingFeedback: { level: "success" | "info" | "warning" | "error"; message: string } | null = null;
+
   showHeader(title: string): void {
     console.log(`\n=== ${title} ===`);
   }
@@ -9,20 +12,30 @@ export class ConsolePresenter implements UiPresenter {
   showMenu(title: string, options: MenuOption[]): void {
     this.showHeader(title);
 
+    if (this.pendingFeedback) {
+      console.log(formatFeedback(this.pendingFeedback.level, this.pendingFeedback.message));
+      console.log("");
+      this.pendingFeedback = null;
+    }
+
     for (const option of options) {
       console.log(`${option.key} - ${option.label}`);
     }
   }
 
   showSuccess(message: string): void {
-    console.log(`\n[SUCESSO] ${message}`);
+    this.pendingFeedback = { level: "success", message };
   }
 
   showError(message: string): void {
-    console.log(`\n[ERRO] ${message}`);
+    this.pendingFeedback = { level: "error", message };
+  }
+
+  showWarning(message: string): void {
+    this.pendingFeedback = { level: "warning", message };
   }
 
   showInfo(message: string): void {
-    console.log(`\n[INFO] ${message}`);
+    this.pendingFeedback = { level: "info", message };
   }
 }

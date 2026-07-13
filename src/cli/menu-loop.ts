@@ -22,7 +22,7 @@ export class MenuLoop implements MenuLoopRunner {
       const action = definition.actions.find(item => item.key === choice);
 
       if (!action) {
-        this.presenter.showError("Opção inválida.");
+        this.presenter.showWarning("Opção inválida.");
         continue;
       }
 
