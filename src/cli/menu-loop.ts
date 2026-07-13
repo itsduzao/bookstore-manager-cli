@@ -1,19 +1,8 @@
 import { CliIO } from "./IO/types";
+import { MenuDefinition, MenuLoopRunner } from "./menu-loop.types";
 import { UiPresenter } from "./presenters/types";
-import { MenuOption } from "./types";
 
-export type MenuAction = {
-  key: string;
-  handler: () => Promise<void> | void;
-};
-
-export type MenuDefinition = {
-  title: string;
-  options: MenuOption[];
-  actions: MenuAction[];
-};
-
-export class MenuLoop {
+export class MenuLoop implements MenuLoopRunner {
   constructor(
     private readonly io: CliIO,
     private readonly presenter: UiPresenter
