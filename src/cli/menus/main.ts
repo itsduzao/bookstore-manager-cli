@@ -14,6 +14,7 @@ export class MainMenu implements MainMenuRunner {
   async show(): Promise<void> {
     await this.menuLoop.run({
       title: "Sistema de Biblioteca",
+      exitKey: "0",
       options: [
         { key: "1", label: "Gerenciar autores" },
         { key: "2", label: "Gerenciar livros" },

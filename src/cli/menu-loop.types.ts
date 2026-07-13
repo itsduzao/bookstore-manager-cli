@@ -9,6 +9,7 @@ export type MenuDefinition = {
   title: string;
   options: MenuOption[];
   actions: MenuAction[];
+  exitKey?: string;
 };
 
 export interface MenuLoopRunner {
