@@ -1,6 +1,8 @@
 CREATE TABLE IF NOT EXISTS autores (
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL
+    nome VARCHAR(150) NOT NULL,
+    nacionalidade VARCHAR(100) NOT NULL,
+    ano_nascimento SMALLINT NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS clientes (
