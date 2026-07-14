@@ -1,3 +1,6 @@
+import { AutorLookUpDTO } from "../dto/autor";
+import { Autor } from "../models/autor";
+
 export interface CrudRepository<TEntity, TCreateDTO = TEntity, TUpdateDTO = Partial<TCreateDTO>, TId = number> {
   list(): Promise<TEntity[]>;
   create(entity: TCreateDTO): Promise<TEntity>;
@@ -13,3 +16,5 @@ export interface NamedLookupRepository<TEntity> {
 export interface DataLookupRepository<TEntity, TLookUpDTO> {
   findByData(dto: TLookUpDTO): Promise<TEntity | null>
 }
+
+export interface AutorRepository extends CrudRepository<Autor>, DataLookupRepository<Autor, AutorLookUpDTO> { }

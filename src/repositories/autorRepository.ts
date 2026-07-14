@@ -2,7 +2,7 @@ import type { Pool } from "pg";
 import { AutorCreateDTO, AutorLookUpDTO, AutorUpdateDTO } from "../dto/autor";
 import { Autor } from "../models/autor";
 import { CrudRepository } from "./crudRepository";
-import { DataLookupRepository, NamedLookupRepository } from "./types";
+import { AutorRepository } from "./types";
 
 type AutorRow = {
   id: number;
@@ -11,7 +11,7 @@ type AutorRow = {
   nacionalidade: string;
 };
 
-export class AutorRepository extends CrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO, number> implements NamedLookupRepository<Autor>, DataLookupRepository<Autor, AutorLookUpDTO> {
+export class AutorRepositoryImpl extends CrudRepository implements AutorRepository {
   constructor(pool: Pool, table: string) {
     super(pool, table);
   }
