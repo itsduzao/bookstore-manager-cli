@@ -9,3 +9,7 @@ export interface CrudRepository<TEntity, TCreateDTO = TEntity, TUpdateDTO = Part
 export interface NamedLookupRepository<TEntity> {
   findByName(name: string): Promise<TEntity[] | null>;
 }
+
+export interface DataLookupRepository<TEntity, TLookUpDTO> {
+  findByData(dto: TLookUpDTO): Promise<TEntity | null>
+}

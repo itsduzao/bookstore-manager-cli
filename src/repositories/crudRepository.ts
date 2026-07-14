@@ -44,7 +44,7 @@ export abstract class CrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<T
     const columns = Object.keys(data);
 
     if (columns.length === 0) {
-      throw new Error("Cannot update an entity without data.");
+      throw new Error("Não é possivel atualizar entidade sem dados.");
     }
 
     const values = Object.values(data);
