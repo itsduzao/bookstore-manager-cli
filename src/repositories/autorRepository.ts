@@ -1,85 +1,86 @@
 import type { Pool } from "pg";
-import { AutorCreateDTO, AutorLookUpDTO, AutorUpdateDTO } from "../dto/autor";
+import { AutorCreateDTO, AutorFilterDTO, AutorUpdateDTO } from "../dto/autor";
 import { Autor } from "../models/autor";
-import { CrudRepository } from "./crudRepository";
-import { AutorRepository } from "./types";
+import { NAME_SEARCH_RESULT_LIMIT, TABLES } from "../shared/constants/database";
+import { EmptyPayloadError } from "../shared/errors/domainErrors";
+import { autorMapper, AutorRow } from "./mappers/autorMapper";
+import { PostgresCrudRepository } from "./postgresCrudRepository";
+import { CrudRepository, DataFilterRepository, NamedLookupRepository } from "./types";
 
-type AutorRow = {
-  id: number;
-  nome: string;
-  ano_nascimento: number;
-  nacionalidade: string;
-};
+export interface AutorRepositoryPort
+  extends CrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO, number>,
+  NamedLookupRepository<Autor>,
+  DataFilterRepository<Autor, AutorFilterDTO> { }
 
-export class AutorRepositoryImpl extends CrudRepository implements AutorRepository {
-  constructor(pool: Pool, table: string) {
-    super(pool, table);
+export class AutorRepository implements AutorRepositoryPort {
+  private readonly crudRepository: CrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO, number>;
+
+  constructor(
+    private readonly pool: Pool,
+    private readonly table: string = TABLES.AUTORES
+  ) {
+    this.crudRepository = new PostgresCrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO>(
+      pool,
+      table,
+      autorMapper
+    );
+  }
+
+  list(): Promise<Autor[]> {
+    return this.crudRepository.list();
+  }
+
+  create(dto: AutorCreateDTO): Promise<Autor> {
+    return this.crudRepository.create(dto);
+  }
+
+  update(id: number, dto: AutorUpdateDTO): Promise<Autor> {
+    return this.crudRepository.update(id, dto);
+  }
+
+  delete(id: number): Promise<void> {
+    return this.crudRepository.delete(id);
+  }
+
+  findById(id: number): Promise<Autor | null> {
+    return this.crudRepository.findById(id);
   }
 
   async findByName(name: string): Promise<Autor[] | null> {
-    const query = `SELECT * FROM ${this.table} WHERE nome = $1 LIMIT 10`;
+    const query = `SELECT * FROM ${this.table} WHERE nome = $1 LIMIT ${NAME_SEARCH_RESULT_LIMIT}`;
     const result = await this.pool.query<AutorRow>(query, [name]);
 
     if (result.rowCount === 0) {
       return null;
     }
 
-    return result.rows.map(row => this.mapRowToEntity(row));
+    return result.rows.map(row => autorMapper.mapRowToEntity(row));
   }
 
-  async findByData(dto: AutorLookUpDTO): Promise<Autor | null> {
-    const data = this.mapLookupDtoToRow(dto);
+  async findByData(dto: AutorFilterDTO): Promise<Autor | null> {
+    const data = autorMapper.mapFilterDtoToRow(dto);
     const columns = Object.keys(data);
 
     if (columns.length === 0) {
-      throw new Error("Cannot update an entity without data.");
+      throw new EmptyPayloadError("buscar um autor");
     }
 
     const values = Object.values(data);
-    const placeholders = columns.map((column, index) => `${column} = $${index + 1}`).join(", ");
+    const conditions = columns.map((column, index) => `${column} = $${index + 1}`).join(" AND ");
 
     const query = `
-      SELECT (${columns.join(", ")})
+      SELECT *
       FROM ${this.table}
-      WHERE ${placeholders}
+      WHERE ${conditions}
+      LIMIT 1
     `;
 
-    const result = await this.pool.query<AutorRow>(query, [...values])
-    return this.mapRowToEntity(result.rows[0])
+    const result = await this.pool.query<AutorRow>(query, values);
+
+    if (result.rowCount === 0) {
+      return null;
+    }
+
+    return autorMapper.mapRowToEntity(result.rows[0]);
   }
-
-  protected mapRowToEntity(row: AutorRow): Autor {
-    return {
-      id: row.id,
-      nome: row.nome,
-      anoNascimento: row.ano_nascimento ?? undefined,
-      nacionalidade: row.nacionalidade ?? undefined,
-    };
-  }
-
-  protected mapCreateDTOToRow(dto: AutorCreateDTO): Record<string, unknown> {
-    return {
-      nome: dto.nome,
-      ano_nascimento: dto.anoNascimento,
-      nacionalidade: dto.nacionalidade,
-    };
-  }
-
-  protected mapLookupDtoToRow(dto: AutorLookUpDTO): Record<string, unknown> {
-    return {
-      nome: dto.nome,
-      ano_nascimento: dto.anoNascimento,
-      nacionalidade: dto.nacionalidade,
-    };
-  }
-
-  protected mapUpdateDTOToRow(dto: AutorUpdateDTO): Record<string, unknown> {
-    return {
-      ...(dto.nome !== undefined ? { nome: dto.nome } : {}),
-      ...(dto.anoNascimento !== undefined ? { ano_nascimento: dto.anoNascimento } : {}),
-      ...(dto.nacionalidade !== undefined ? { nacionalidade: dto.nacionalidade } : {}),
-    };
-  }
-
-
 }

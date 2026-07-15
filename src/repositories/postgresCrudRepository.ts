@@ -1,29 +1,32 @@
 import type { Pool } from "pg";
+import { DEFAULT_ID_COLUMN } from "../shared/constants/database";
+import { EmptyPayloadError } from "../shared/errors/domainErrors";
+import { EntityMapper } from "./mappers/types";
+import { CrudRepository } from "./types";
 
 type DbRow = Record<string, unknown>;
 
-export abstract class CrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<TCreateDTO>, TId = number> {
-  protected constructor(
-    protected readonly pool: Pool,
-    protected readonly table: string,
-    protected readonly idColumn = "id"
-  ) { }
+export class PostgresCrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<TCreateDTO>, TId = number>
+  implements CrudRepository<TEntity, TCreateDTO, TUpdateDTO, TId> {
 
-  protected abstract mapRowToEntity(row: DbRow): TEntity;
-  protected abstract mapCreateDTOToRow(dto: TCreateDTO): DbRow;
-  protected abstract mapUpdateDTOToRow(dto: TUpdateDTO): DbRow;
+  constructor(
+    private readonly pool: Pool,
+    private readonly table: string,
+    private readonly mapper: EntityMapper<TEntity, TCreateDTO, TUpdateDTO>,
+    private readonly idColumn: string = DEFAULT_ID_COLUMN
+  ) { }
 
   async list(): Promise<TEntity[]> {
     const result = await this.pool.query<DbRow>(`SELECT * FROM ${this.table}`);
-    return result.rows.map(row => this.mapRowToEntity(row));
+    return result.rows.map(row => this.mapper.mapRowToEntity(row));
   }
 
   async create(dto: TCreateDTO): Promise<TEntity> {
-    const data = this.mapCreateDTOToRow(dto);
+    const data = this.mapper.mapCreateDtoToRow(dto);
     const columns = Object.keys(data);
 
     if (columns.length === 0) {
-      throw new Error("Não é possivel criar uma entidade sem dados.");
+      throw new EmptyPayloadError("criar um registro");
     }
 
     const values = Object.values(data);
@@ -36,15 +39,15 @@ export abstract class CrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<T
     `;
 
     const result = await this.pool.query<DbRow>(query, values);
-    return this.mapRowToEntity(result.rows[0]);
+    return this.mapper.mapRowToEntity(result.rows[0]);
   }
 
   async update(id: TId, dto: TUpdateDTO): Promise<TEntity> {
-    const data = this.mapUpdateDTOToRow(dto);
+    const data = this.mapper.mapUpdateDtoToRow(dto);
     const columns = Object.keys(data);
 
     if (columns.length === 0) {
-      throw new Error("Não é possivel atualizar entidade sem dados.");
+      throw new EmptyPayloadError("atualizar um registro");
     }
 
     const values = Object.values(data);
@@ -58,7 +61,7 @@ export abstract class CrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<T
     `;
 
     const result = await this.pool.query<DbRow>(query, [...values, id]);
-    return this.mapRowToEntity(result.rows[0]);
+    return this.mapper.mapRowToEntity(result.rows[0]);
   }
 
   async delete(id: TId): Promise<void> {
@@ -73,6 +76,6 @@ export abstract class CrudRepository<TEntity, TCreateDTO, TUpdateDTO = Partial<T
       return null;
     }
 
-    return this.mapRowToEntity(result.rows[0]);
+    return this.mapper.mapRowToEntity(result.rows[0]);
   }
 }
