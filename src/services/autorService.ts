@@ -1,6 +1,6 @@
 import { AutorCreateDTO, AutorFilterDTO, AutorUpdateDTO } from "../dto/autor";
 import { Autor } from "../models/autor";
-import { AutorRepositoryPort } from "../repositories/autorRepository";
+import { AutorRepository } from "../repositories/autorRepository";
 import { MIN_AUTOR_BIRTH_YEAR } from "../shared/constants/validation";
 import { ValidationError } from "../shared/errors/domainErrors";
 import { CrudService } from "./crudService";
@@ -14,7 +14,7 @@ export interface AutorService extends Service<Autor, AutorCreateDTO, AutorUpdate
 export class DefaultAutorService implements AutorService {
   private readonly crudService: Service<Autor, AutorCreateDTO, AutorUpdateDTO, number>;
 
-  constructor(private readonly repository: AutorRepositoryPort) {
+  constructor(private readonly repository: AutorRepository) {
     this.crudService = new CrudService(repository);
   }
 

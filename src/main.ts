@@ -6,7 +6,7 @@ import { MainMenu, MainMenuRunner } from "./cli/menus/main";
 import { ConsolePresenter } from "./cli/presenters/console";
 import { DefaultAutorController } from "./controllers/autorController";
 import { pool } from "./database/connection";
-import { AutorRepository } from "./repositories/autorRepository";
+import { DefaultAutorRepository } from "./repositories/autorRepository";
 import { DefaultAutorService } from "./services/autorService";
 
 async function main(): Promise<void> {
@@ -14,7 +14,7 @@ async function main(): Promise<void> {
   const presenter = new ConsolePresenter();
   const menuLoop: MenuLoopRunner = new MenuLoop(io, presenter);
 
-  const autorRepository = new AutorRepository(pool);
+  const autorRepository = new DefaultAutorRepository(pool);
   const autorService = new DefaultAutorService(autorRepository);
   const autorController = new DefaultAutorController(autorService, io, presenter);
   const autorMenu: AutorMenuRunner = new AutorMenu(menuLoop, autorController);

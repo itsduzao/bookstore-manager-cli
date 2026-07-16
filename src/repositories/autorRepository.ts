@@ -7,12 +7,12 @@ import { autorMapper, AutorRow } from "./mappers/autorMapper";
 import { PostgresCrudRepository } from "./postgresCrudRepository";
 import { CrudRepository, DataFilterRepository, NamedLookupRepository } from "./types";
 
-export interface AutorRepositoryPort
+export interface AutorRepository
   extends CrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO, number>,
   NamedLookupRepository<Autor>,
   DataFilterRepository<Autor, AutorFilterDTO> { }
 
-export class AutorRepository implements AutorRepositoryPort {
+export class DefaultAutorRepository implements AutorRepository {
   private readonly crudRepository: CrudRepository<Autor, AutorCreateDTO, AutorUpdateDTO, number>;
 
   constructor(
