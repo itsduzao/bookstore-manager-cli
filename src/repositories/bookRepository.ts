@@ -12,7 +12,7 @@ export interface BookRepository
   NamedLookupRepository<Book>,
   DataFilterRepository<Book, BookFilterDTO> { }
 
-export class DefaultAutorRepository implements BookRepository {
+export class DefaultBookRepository implements BookRepository {
   private readonly crudRepository: CrudRepository<Book, BookCreateDTO, BookUpdateDTO, number>;
 
   constructor(

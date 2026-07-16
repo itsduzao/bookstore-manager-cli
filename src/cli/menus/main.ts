@@ -1,6 +1,7 @@
 import { MenuLoopRunner } from "../menu-loop.types";
 import { UiPresenter } from "../presenters/types";
 import { AutorMenuRunner } from "./autorMenu";
+import { BookMenuRunner } from "./bookMenu";
 import { MenuRunner } from "./types";
 
 export interface MainMenuRunner extends MenuRunner { }
@@ -9,7 +10,8 @@ export class MainMenu implements MainMenuRunner {
   constructor(
     private readonly menuLoop: MenuLoopRunner,
     private readonly presenter: UiPresenter,
-    private readonly autorMenu: AutorMenuRunner
+    private readonly autorMenu: AutorMenuRunner,
+    private readonly bookMenu: BookMenuRunner
   ) { }
 
   async show(): Promise<void> {
@@ -31,9 +33,7 @@ export class MainMenu implements MainMenuRunner {
         },
         {
           key: "2",
-          handler: async () => {
-            this.presenter.showInfo("Menu de livros ainda não implementado.");
-          },
+          handler: () => this.bookMenu.show(),
         },
         {
           key: "3",
