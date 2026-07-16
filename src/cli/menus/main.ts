@@ -1,14 +1,15 @@
 import { MenuLoopRunner } from "../menu-loop.types";
 import { UiPresenter } from "../presenters/types";
+import { AutorMenuRunner } from "./autorMenu";
+import { MenuRunner } from "./types";
 
-export interface MainMenuRunner {
-  show(): Promise<void>;
-}
+export interface MainMenuRunner extends MenuRunner { }
 
 export class MainMenu implements MainMenuRunner {
   constructor(
     private readonly menuLoop: MenuLoopRunner,
-    private readonly presenter: UiPresenter
+    private readonly presenter: UiPresenter,
+    private readonly autorMenu: AutorMenuRunner
   ) { }
 
   async show(): Promise<void> {
@@ -26,9 +27,7 @@ export class MainMenu implements MainMenuRunner {
       actions: [
         {
           key: "1",
-          handler: async () => {
-            this.presenter.showInfo("Menu de autores ainda não implementado.");
-          },
+          handler: () => this.autorMenu.show(),
         },
         {
           key: "2",

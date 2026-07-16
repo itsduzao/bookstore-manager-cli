@@ -38,4 +38,10 @@ export class ConsolePresenter implements UiPresenter {
   showInfo(message: string): void {
     this.pendingFeedback = { level: "info", message };
   }
+
+  showList(lines: string[]): void {
+    for (const line of lines) {
+      console.log(line);
+    }
+  }
 }

@@ -7,4 +7,5 @@ export interface UiPresenter {
   showError(message: string): void;
   showWarning(message: string): void;
   showInfo(message: string): void;
+  showList(lines: string[]): void;
 }
