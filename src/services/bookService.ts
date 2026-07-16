@@ -2,6 +2,7 @@ import { BookCreateDTO, BookFilterDTO, BookUpdateDTO } from "../dto/livro";
 import { Book } from "../models/livro";
 import { BookRepository } from "../repositories/bookRepository";
 import { ValidationError } from "../shared/errors/domainErrors";
+import { AutorService } from "./autorService";
 import { CrudService } from "./crudService";
 import { Service } from "./types";
 
@@ -13,7 +14,10 @@ export interface BookService extends Service<Book, BookCreateDTO, BookUpdateDTO,
 export class DefaultBookService implements BookService {
   private readonly crudService: Service<Book, BookCreateDTO, BookUpdateDTO, number>;
 
-  constructor(private readonly repository: BookRepository) {
+  constructor(
+    private readonly repository: BookRepository,
+    private readonly autorService: AutorService
+  ) {
     this.crudService = new CrudService(repository);
   }
 
@@ -21,13 +25,23 @@ export class DefaultBookService implements BookService {
     return this.crudService.list();
   }
 
-  create(dto: BookCreateDTO): Promise<Book> {
+  async create(dto: BookCreateDTO): Promise<Book> {
     this.validate(dto);
+
+    if (dto.autorId) {
+      await this.checkAuthorExists(dto.autorId);
+    }
+
     return this.crudService.create(dto);
   }
 
-  update(id: number, dto: BookUpdateDTO): Promise<Book> {
+  async update(id: number, dto: BookUpdateDTO): Promise<Book> {
     this.validate(dto);
+
+    if (dto.autorId !== undefined) {
+      await this.checkAuthorExists(dto.autorId);
+    }
+
     return this.crudService.update(id, dto);
   }
 
@@ -61,8 +75,16 @@ export class DefaultBookService implements BookService {
       );
     }
 
-    if (dto.autorId !== undefined) {
-      throw new ValidationError("É preciso informar um id de autor.")
+    if (!dto.autorId) {
+      throw new ValidationError("É preciso informar um id de autor.");
+    }
+  }
+
+  private async checkAuthorExists(authorId: number): Promise<void> {
+    const author = await this.autorService.findById(authorId);
+
+    if (!author) {
+      throw new ValidationError(`O autor com ID ${authorId} não foi encontrado.`);
     }
   }
 }

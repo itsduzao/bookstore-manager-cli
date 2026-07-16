@@ -2,7 +2,7 @@ import { CLIReadLine } from "./cli/IO/readline";
 import { MenuLoop } from "./cli/menu-loop";
 import { MenuLoopRunner } from "./cli/menu-loop.types";
 import { AutorMenu, AutorMenuRunner } from "./cli/menus/autorMenu";
-import { BookMenuRunner } from "./cli/menus/bookMenu";
+import { BookMenu, BookMenuRunner } from "./cli/menus/bookMenu";
 import { MainMenu, MainMenuRunner } from "./cli/menus/main";
 import { ConsolePresenter } from "./cli/presenters/console";
 import { DefaultAutorController } from "./controllers/autorController";
@@ -24,9 +24,9 @@ async function main(): Promise<void> {
   const autorMenu: AutorMenuRunner = new AutorMenu(menuLoop, autorController);
 
   const bookRepository = new DefaultBookRepository(pool);
-  const bookService = new DefaultBookService(bookRepository);
+  const bookService = new DefaultBookService(bookRepository, autorService);
   const bookController = new DefaultBookController(bookService, io, presenter);
-  const bookMenu: BookMenuRunner = new AutorMenu(menuLoop, bookController);
+  const bookMenu: BookMenuRunner = new BookMenu(menuLoop, bookController);
 
   const mainMenu: MainMenuRunner = new MainMenu(menuLoop, presenter, autorMenu, bookMenu);
 
