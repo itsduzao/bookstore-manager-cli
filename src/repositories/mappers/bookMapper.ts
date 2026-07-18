@@ -6,7 +6,7 @@ export type BookRow = {
   id: number;
   titulo: string;
   quantidade_disponivel: number;
-  autor_id: string;
+  autor_id: number;
 };
 
 export type BookCreateRow = Omit<BookRow, "id">
