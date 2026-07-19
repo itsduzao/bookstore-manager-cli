@@ -1,5 +1,9 @@
 import { Emprestimo } from "../models/emprestimo";
 
-export type EmprestimoCreateDTO = Omit<Emprestimo, "id">;
-export type EmprestimoUpdateDTO = Partial<EmprestimoCreateDTO>;
-export type EmprestimoFilterDTO = Partial<EmprestimoCreateDTO>;
+export type EmprestimoRecordDTO = Omit<Emprestimo, "id">;
+export type EmprestimoCreateDTO = {
+  clienteId: number;
+  livroId: number;
+};
+export type EmprestimoUpdateDTO = Partial<EmprestimoRecordDTO>;
+export type EmprestimoFilterDTO = Partial<EmprestimoRecordDTO>;

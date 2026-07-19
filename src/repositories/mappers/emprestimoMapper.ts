@@ -1,23 +1,20 @@
-import { EmprestimoCreateDTO, EmprestimoFilterDTO, EmprestimoUpdateDTO } from "../../dto/emprestimo";
+import { EmprestimoRecordDTO, EmprestimoUpdateDTO } from "../../dto/emprestimo";
 import { Emprestimo } from "../../models/emprestimo";
-import { EntityMapper, FilterMapper } from "./types";
+import { EntityMapper } from "./types";
 
-type EmprestimoRow = {
+export type EmprestimoRow = {
   id: number;
   data_emprestimo: Date;
   data_vencimento: Date;
-  data_devolucao: Date,
+  data_devolucao: Date | null;
   cliente_id: number;
   livro_id: number;
-}
+};
 
 export type EmprestimoCreateRow = Omit<EmprestimoRow, "id">;
-export type EmprestimoOptionalRow = Partial<EmprestimoRow>
+export type EmprestimoOptionalRow = Partial<EmprestimoRow>;
 
-class EmprestimoMapper
-  implements
-  EntityMapper<Emprestimo, EmprestimoCreateDTO, EmprestimoUpdateDTO>,
-  FilterMapper<EmprestimoUpdateDTO> {
+class EmprestimoMapper implements EntityMapper<Emprestimo, EmprestimoRecordDTO, EmprestimoUpdateDTO> {
 
   mapRowToEntity(row: EmprestimoRow): Emprestimo {
     return {
@@ -26,26 +23,27 @@ class EmprestimoMapper
       dataVencimento: row.data_vencimento,
       dataDevolucao: row.data_devolucao,
       clienteId: row.cliente_id,
-      livroId: row.livro_id
-    }
+      livroId: row.livro_id,
+    };
   }
 
-  private mapDtoToRow(dto: Partial<EmprestimoCreateDTO>): EmprestimoOptionalRow {
-    const emprestimoRow: EmprestimoOptionalRow = {};
+  private mapDtoToRow(dto: Partial<EmprestimoRecordDTO>): EmprestimoOptionalRow {
+    const row: EmprestimoOptionalRow = {};
 
+    if (dto.dataEmprestimo !== undefined) row.data_emprestimo = dto.dataEmprestimo;
+    if (dto.dataVencimento !== undefined) row.data_vencimento = dto.dataVencimento;
+    if (dto.dataDevolucao !== undefined) row.data_devolucao = dto.dataDevolucao;
+    if (dto.clienteId !== undefined) row.cliente_id = dto.clienteId;
+    if (dto.livroId !== undefined) row.livro_id = dto.livroId;
 
-    return emprestimoRow;
+    return row;
   }
 
-  mapCreateDtoToRow(dto: EmprestimoCreateDTO): EmprestimoCreateRow {
+  mapCreateDtoToRow(dto: EmprestimoRecordDTO): EmprestimoCreateRow {
     return this.mapDtoToRow(dto) as EmprestimoCreateRow;
   }
 
   mapUpdateDtoToRow(dto: EmprestimoUpdateDTO): EmprestimoOptionalRow {
-    return this.mapDtoToRow(dto);
-  }
-
-  mapFilterDtoToRow(dto: EmprestimoFilterDTO): EmprestimoOptionalRow {
     return this.mapDtoToRow(dto);
   }
 }

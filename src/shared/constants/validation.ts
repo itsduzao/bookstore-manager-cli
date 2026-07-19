@@ -1,1 +1,3 @@
 export const MIN_AUTOR_BIRTH_YEAR = 1000;
+
+export const EMPRESTIMO_PERIODO_DIAS = 7;
