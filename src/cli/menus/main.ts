@@ -4,6 +4,7 @@ import { AutorMenuRunner } from "./autorMenu";
 import { BookMenuRunner } from "./bookMenu";
 import { ClienteMenuRunner } from "./clienteMenu";
 import { EmprestimoMenuRunner } from "./emprestimoMenu";
+import { RelatorioMenuRunner } from "./relatorioMenu";
 import { MenuRunner } from "./types";
 
 export interface MainMenuRunner extends MenuRunner { }
@@ -15,7 +16,8 @@ export class MainMenu implements MainMenuRunner {
     private readonly autorMenu: AutorMenuRunner,
     private readonly bookMenu: BookMenuRunner,
     private readonly clienteMenu: ClienteMenuRunner,
-    private readonly emprestimoMenu: EmprestimoMenuRunner
+    private readonly emprestimoMenu: EmprestimoMenuRunner,
+    private readonly relatorioMenu: RelatorioMenuRunner
   ) { }
 
   async show(): Promise<void> {
@@ -49,9 +51,7 @@ export class MainMenu implements MainMenuRunner {
         },
         {
           key: "5",
-          handler: async () => {
-            this.presenter.showInfo("Menu de relatórios ainda não implementado.");
-          },
+          handler: () => this.relatorioMenu.show(),
         },
       ],
     });

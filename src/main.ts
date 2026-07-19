@@ -6,20 +6,24 @@ import { BookMenu, BookMenuRunner } from "./cli/menus/bookMenu";
 import { ClienteMenu, ClienteMenuRunner } from "./cli/menus/clienteMenu";
 import { EmprestimoMenu, EmprestimoMenuRunner } from "./cli/menus/emprestimoMenu";
 import { MainMenu, MainMenuRunner } from "./cli/menus/main";
+import { RelatorioMenu, RelatorioMenuRunner } from "./cli/menus/relatorioMenu";
 import { ConsolePresenter } from "./cli/presenters/console";
 import { DefaultAutorController } from "./controllers/autorController";
 import { DefaultBookController } from "./controllers/bookController";
 import { DefaultClienteController } from "./controllers/clienteController";
 import { DefaultEmprestimoController } from "./controllers/emprestimoController";
+import { DefaultRelatorioController } from "./controllers/relatorioController";
 import { pool } from "./database/connection";
 import { DefaultAutorRepository } from "./repositories/autorRepository";
 import { DefaultBookRepository } from "./repositories/bookRepository";
 import { DefaultClienteRepository } from "./repositories/clienteRepository";
 import { DefaultEmprestimoRepository } from "./repositories/emprestimoRepository";
+import { DefaultRelatorioRepository } from "./repositories/relatorioRepository";
 import { DefaultAutorService } from "./services/autorService";
 import { DefaultBookService } from "./services/bookService";
 import { DefaultClienteService } from "./services/clienteService";
 import { DefaultEmprestimoService } from "./services/emprestimoService";
+import { DefaultRelatorioService } from "./services/relatorioService";
 
 async function main(): Promise<void> {
   const io = new CLIReadLine();
@@ -46,13 +50,19 @@ async function main(): Promise<void> {
   const emprestimoController = new DefaultEmprestimoController(emprestimoService, bookService, clienteService, io, presenter);
   const emprestimoMenu: EmprestimoMenuRunner = new EmprestimoMenu(menuLoop, emprestimoController);
 
+  const relatorioRepository = new DefaultRelatorioRepository(pool);
+  const relatorioService = new DefaultRelatorioService(relatorioRepository);
+  const relatorioController = new DefaultRelatorioController(relatorioService, presenter);
+  const relatorioMenu: RelatorioMenuRunner = new RelatorioMenu(menuLoop, relatorioController);
+
   const mainMenu: MainMenuRunner = new MainMenu(
     menuLoop,
     presenter,
     autorMenu,
     bookMenu,
     clienteMenu,
-    emprestimoMenu
+    emprestimoMenu,
+    relatorioMenu
   );
 
   try {
