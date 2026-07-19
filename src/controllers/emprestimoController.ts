@@ -8,7 +8,6 @@ import { ENTITY_NAMES } from "../shared/constants/entities";
 import { CrudController } from "./crudController";
 import { EmprestimoFormatter, EmprestimoPrompter } from "./support/emprestimoPresentation";
 import { presentControllerError } from "./support/errorPresenter";
-import { EntityFormatter } from "./support/types";
 import { Controller } from "./types";
 
 export interface EmprestimoController extends Controller {
@@ -18,7 +17,7 @@ export interface EmprestimoController extends Controller {
 
 export class DefaultEmprestimoController implements EmprestimoController {
   private readonly crudController: Controller;
-  private readonly formatter: EntityFormatter<Emprestimo>;
+  private readonly formatter: EmprestimoFormatter;
 
   constructor(
     private readonly service: EmprestimoService,
@@ -39,8 +38,20 @@ export class DefaultEmprestimoController implements EmprestimoController {
     );
   }
 
-  list(): Promise<void> {
-    return this.crudController.list();
+  async list(): Promise<void> {
+    try {
+      const emprestimos = await this.service.list();
+
+      if (emprestimos.length === 0) {
+        this.presenter.showInfo("Nenhum(a) empréstimo cadastrado(a) até o momento.");
+        return;
+      }
+
+      this.presenter.showList(await this.describeSummaries(emprestimos));
+      this.presenter.showSuccess(`${emprestimos.length} registro(s) encontrado(s).`);
+    } catch (error) {
+      presentControllerError(error, this.presenter);
+    }
   }
 
   create(): Promise<void> {
@@ -55,8 +66,20 @@ export class DefaultEmprestimoController implements EmprestimoController {
     return this.crudController.delete();
   }
 
-  findById(): Promise<void> {
-    return this.crudController.findById();
+  async findById(): Promise<void> {
+    try {
+      const id = await this.io.askInt("Informe o id do(a) empréstimo: ", { min: 1 });
+      const emprestimo = await this.service.findById(id);
+
+      if (!emprestimo) {
+        this.presenter.showInfo(`Nenhum(a) empréstimo encontrado(a) com o id ${id}.`);
+        return;
+      }
+
+      this.presenter.showList(await this.describeDetails(emprestimo));
+    } catch (error) {
+      presentControllerError(error, this.presenter);
+    }
   }
 
   async findByCliente(): Promise<void> {
@@ -69,7 +92,7 @@ export class DefaultEmprestimoController implements EmprestimoController {
         return;
       }
 
-      this.presenter.showList(await this.describeComLivro(emprestimos));
+      this.presenter.showList(await this.describeSummaries(emprestimos));
       this.presenter.showSuccess(`${emprestimos.length} registro(s) encontrado(s).`);
     } catch (error) {
       presentControllerError(error, this.presenter);
@@ -86,28 +109,34 @@ export class DefaultEmprestimoController implements EmprestimoController {
         return;
       }
 
-      this.presenter.showList(await this.describeComCliente(emprestimos));
+      this.presenter.showList(await this.describeSummaries(emprestimos));
       this.presenter.showSuccess(`${emprestimos.length} registro(s) encontrado(s).`);
     } catch (error) {
       presentControllerError(error, this.presenter);
     }
   }
 
-  private async describeComLivro(emprestimos: Emprestimo[]): Promise<string[]> {
+  private async describeSummaries(emprestimos: Emprestimo[]): Promise<string[]> {
     return Promise.all(emprestimos.map(async emprestimo => {
-      const livro = await this.bookService.findById(emprestimo.livroId);
-      const livroLabel = livro ? `"${livro.titulo}"` : `livro #${emprestimo.livroId}`;
-
-      return `${this.formatter.formatSummary(emprestimo)} — ${livroLabel}`;
+      const { livro, cliente } = await this.loadRelatedData(emprestimo);
+      return this.formatter.formatSummary(emprestimo, livro, cliente);
     }));
   }
 
-  private async describeComCliente(emprestimos: Emprestimo[]): Promise<string[]> {
-    return Promise.all(emprestimos.map(async emprestimo => {
-      const cliente = await this.clienteService.findById(emprestimo.clienteId);
-      const clienteLabel = cliente ? cliente.nome : `cliente #${emprestimo.clienteId}`;
+  private async describeDetails(emprestimo: Emprestimo): Promise<string[]> {
+    const { livro, cliente } = await this.loadRelatedData(emprestimo);
+    return this.formatter.formatDetails(emprestimo, livro, cliente);
+  }
 
-      return `${this.formatter.formatSummary(emprestimo)} — ${clienteLabel}`;
-    }));
+  private async loadRelatedData(emprestimo: Emprestimo): Promise<{ livro: string; cliente: string }> {
+    const [livro, cliente] = await Promise.all([
+      this.bookService.findById(emprestimo.livroId),
+      this.clienteService.findById(emprestimo.clienteId),
+    ]);
+
+    return {
+      livro: livro ? `"${livro.titulo}"` : `Livro #${emprestimo.livroId}`,
+      cliente: cliente ? cliente.nome : `Cliente #${emprestimo.clienteId}`,
+    };
   }
 }

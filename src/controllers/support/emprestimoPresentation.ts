@@ -4,19 +4,27 @@ import { Emprestimo } from "../../models/emprestimo";
 import { EntityFormatter, EntityPrompter } from "./types";
 
 export class EmprestimoFormatter implements EntityFormatter<Emprestimo> {
-  formatSummary(emprestimo: Emprestimo): string {
+  formatSummary(
+    emprestimo: Emprestimo,
+    livro: string = `Livro #${emprestimo.livroId}`,
+    cliente: string = `Cliente #${emprestimo.clienteId}`
+  ): string {
     const situacao = emprestimo.dataDevolucao
       ? `devolvido em ${this.formatDate(emprestimo.dataDevolucao)}`
       : `vence em ${this.formatDate(emprestimo.dataVencimento)}`;
 
-    return `#${emprestimo.id} - Livro #${emprestimo.livroId} | Cliente #${emprestimo.clienteId} | emprestado em ${this.formatDate(emprestimo.dataEmprestimo)} (${situacao})`;
+    return `#${emprestimo.id} - Livro: ${livro} | Cliente: ${cliente} | emprestado em ${this.formatDate(emprestimo.dataEmprestimo)} (${situacao})`;
   }
 
-  formatDetails(emprestimo: Emprestimo): string[] {
+  formatDetails(
+    emprestimo: Emprestimo,
+    livro: string = `#${emprestimo.livroId}`,
+    cliente: string = `#${emprestimo.clienteId}`
+  ): string[] {
     return [
       `ID do empréstimo: ${emprestimo.id}`,
-      `Livro: #${emprestimo.livroId}`,
-      `Cliente: #${emprestimo.clienteId}`,
+      `Livro: ${livro}`,
+      `Cliente: ${cliente}`,
       `Data do empréstimo: ${this.formatDate(emprestimo.dataEmprestimo)}`,
       `Data de vencimento: ${this.formatDate(emprestimo.dataVencimento)}`,
       `Data de devolução: ${emprestimo.dataDevolucao ? this.formatDate(emprestimo.dataDevolucao) : "ainda não devolvido"}`,
