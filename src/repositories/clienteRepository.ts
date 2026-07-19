@@ -58,7 +58,7 @@ export class DefaultClienteRepository implements ClienteRepository {
     const columns = Object.keys(data);
 
     if (columns.length === 0) {
-      throw new EmptyPayloadError("buscar um livro");
+      throw new EmptyPayloadError("buscar um cliente");
     }
 
     const values = Object.values(data);
@@ -80,4 +80,3 @@ export class DefaultClienteRepository implements ClienteRepository {
     return clienteMapper.mapRowToEntity(result.rows[0]);
   }
 }
-

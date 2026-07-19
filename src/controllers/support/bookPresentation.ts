@@ -45,8 +45,8 @@ export class BookPrompter implements EntityPrompter<BookCreateDTO, BookUpdateDTO
 
   private async promptRequiredFields(): Promise<BookCreateDTO> {
     const titulo = await this.io.ask("Título: ");
-    const qtdDisponivel = await this.io.askInt("Quantidade: ")
-    const autorId = await this.io.ask("ID do autor: ")
+    const qtdDisponivel = await this.io.askInt("Quantidade: ", { min: 1 });
+    const autorId = await this.io.askInt("ID do autor: ", { min: 1 });
 
     return { titulo, qtdDisponivel, autorId };
   }

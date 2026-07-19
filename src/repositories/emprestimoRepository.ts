@@ -134,7 +134,11 @@ export class DefaultEmprestimoRepository implements EmprestimoRepository {
       await client.query("COMMIT");
       return result;
     } catch (error) {
-      await client.query("ROLLBACK");
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        // Preserva o erro original da operação, que é mais útil para o usuário e para o chamador.
+      }
       throw error;
     } finally {
       client.release();

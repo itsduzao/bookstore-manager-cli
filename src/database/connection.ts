@@ -14,10 +14,10 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000
 })
 
-pool.on("error", (error) => {
-  console.error(`Erro no pool de conexão: ${error}`)
+pool.on("error", () => {
+  console.error("A conexão com o banco de dados foi interrompida.")
 })
 
 pool.on("connect", () => {
-  console.log(`Conexão com estabelecida com o banco de dados.`)
+  console.log("Conexão estabelecida com o banco de dados.")
 })
