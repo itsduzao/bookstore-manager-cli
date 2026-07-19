@@ -26,9 +26,7 @@ export class EmprestimoMenu implements EmprestimoMenuRunner {
       ],
       actions: [
         { key: "1", handler: () => this.controller.list() },
-        // "Emprestar livro" -> create(): verificações de existência/disponibilidade ficam no service.
         { key: "2", handler: () => this.controller.create() },
-        // "Devolver livro" -> update(): só é aceito para registrar a devolução.
         { key: "3", handler: () => this.controller.update() },
         { key: "4", handler: () => this.controller.delete() },
         { key: "5", handler: () => this.controller.findById() },
