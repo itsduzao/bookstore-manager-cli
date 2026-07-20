@@ -36,7 +36,7 @@ export class ClientePrompter implements EntityPrompter<ClienteCreateDTO, Cliente
       dto.nome = await this.io.ask("Novo nome: ");
     }
 
-    if (await this.io.askYesNo("Deseja alterar a nacionalidade?")) {
+    if (await this.io.askYesNo("Deseja alterar o e-mail?")) {
       dto.email = await this.io.ask("Novo email: ");
     }
 
