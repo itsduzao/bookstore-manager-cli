@@ -47,7 +47,7 @@ export class DefaultBookRepository implements BookRepository {
   }
 
   async findByName(name: string): Promise<Book[] | null> {
-    const query = `SELECT * FROM ${this.table} WHERE nome = $1 LIMIT ${NAME_SEARCH_RESULT_LIMIT}`;
+    const query = `SELECT * FROM ${this.table} WHERE titulo = $1 LIMIT ${NAME_SEARCH_RESULT_LIMIT}`;
     const result = await this.pool.query<BookRow>(query, [name]);
 
     if (result.rowCount === 0) {
