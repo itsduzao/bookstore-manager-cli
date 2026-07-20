@@ -23,17 +23,17 @@ export class CLIReadLine implements CliIO {
       const { min, max } = options ?? {};
 
       if (!Number.isInteger(value)) {
-        console.log(formatFeedback("warning", "Digite um número inteiro válido."));
+        this.showValidationWarning("Digite um número inteiro válido.");
         continue;
       }
 
       if (min !== undefined && value < min) {
-        console.log(formatFeedback("warning", `O valor deve ser >= ${min}.`));
+        this.showValidationWarning(`O valor deve ser >= ${min}.`);
         continue;
       }
 
       if (max !== undefined && value > max) {
-        console.log(formatFeedback("warning", `O valor deve ser <= ${max}.`));
+        this.showValidationWarning(`O valor deve ser <= ${max}.`);
         continue;
       }
 
@@ -55,7 +55,7 @@ export class CLIReadLine implements CliIO {
         return answer;
       }
 
-      console.log(formatFeedback("warning", `Opção inválida. Use uma das opções: ${options.join(", ")}.`));
+      this.showValidationWarning(`Opção inválida. Use uma das opções: ${options.join(", ")}.`);
     }
   }
 
@@ -66,11 +66,15 @@ export class CLIReadLine implements CliIO {
       if (answer === "s") return true;
       if (answer === "n") return false;
 
-      console.log(formatFeedback("warning", "Responda com S ou N."));
+      this.showValidationWarning("Responda com S ou N.");
     }
   }
 
   close(): void {
     this.readline.close();
+  }
+
+  private showValidationWarning(message: string): void {
+    console.log(`\n${formatFeedback("warning", message)}\n`);
   }
 }
