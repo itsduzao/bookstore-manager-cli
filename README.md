@@ -35,38 +35,53 @@ O Dockerfile usa a imagem `node:24-bookworm-slim`, que define a versão de Node 
 
 ## Configuração do banco de dados
 
-Copie o arquivo de exemplo e ajuste as credenciais:
-
-```bash
-cp .env.example .env
-```
+As duas formas de execução usam as mesmas variáveis, mas com hosts diferentes:
 
 Variáveis disponíveis:
 
-| Variável | Descrição | Exemplo |
-| --- | --- | --- |
-| `DB_HOST` | Host do PostgreSQL | `localhost` sem Docker; `db` com Docker |
-| `DB_PORT` | Porta do PostgreSQL | `5432` |
-| `DB_NAME` | Nome do banco | `bookstore_manager` |
-| `DB_USER` | Usuário do banco | `bmc_admin` |
-| `DB_PASSWORD` | Senha do usuário | `troque-esta-senha` |
+| Variável      | Descrição           | Exemplo                                 |
+| ------------- | ------------------- | --------------------------------------- |
+| `DB_HOST`     | Host do PostgreSQL  | `localhost` sem Docker; `db` com Docker |
+| `DB_PORT`     | Porta do PostgreSQL | `5432`                                  |
+| `DB_NAME`     | Nome do banco       | `bookstore_manager`                     |
+| `DB_USER`     | Usuário do banco    | `bmc_admin`                             |
+| `DB_PASSWORD` | Senha do usuário    | `troque-esta-senha`                     |
 
 O esquema está em [`src/database/schema.sql`](src/database/schema.sql). Ele cria as tabelas `autores`, `clientes`, `livros` e `emprestimos`, incluindo as chaves estrangeiras necessárias.
 
-### Banco local
+### Banco local (sem Docker)
 
-Com o PostgreSQL local em execução e o `.env` configurado para `DB_HOST=localhost`, crie o banco e aplique o esquema:
+Copie a configuração local e ajuste as credenciais, se necessário:
 
 ```bash
-createdb -U bmc_admin bookstore_manager
-psql -U bmc_admin -d bookstore_manager -f src/database/schema.sql
+cp .env.local.example .env
 ```
 
-Caso use outro usuário, banco, host ou porta, ajuste os comandos e o `.env` de forma consistente.
+Com o PostgreSQL em execução, crie o usuário e o banco. Estes comandos devem ser executados por um usuário administrador do PostgreSQL; ajuste os valores caso tenha alterado o `.env`:
+
+```bash
+createuser -P bmc_admin
+createdb -O bmc_admin bookstore_manager
+```
+
+Instale as dependências e aplique o esquema:
+
+```bash
+npm ci
+npm run db:init
+```
+
+O comando `db:init` usa as variáveis do `.env` e aplica [`src/database/schema.sql`](src/database/schema.sql). Ele pode ser executado novamente com segurança na estrutura atual: as tabelas usam `CREATE TABLE IF NOT EXISTS`, portanto dados existentes não são apagados. Ele não cria o banco; essa etapa é responsabilidade do PostgreSQL local.
 
 ### Banco com Docker
 
-O serviço `db` usa `postgres:16-alpine` e aplica o esquema automaticamente na primeira criação do volume. As credenciais são lidas do arquivo `.env`.
+Copie a configuração própria do Compose:
+
+```bash
+cp .env.docker.example .env
+```
+
+O serviço `db` usa `postgres:16-alpine` e aplica o esquema automaticamente somente na primeira criação do volume. As credenciais são lidas do arquivo `.env`. Se o esquema mudar depois disso, aplique a alteração manualmente ou recrie o volume.
 
 ## Instalação
 
@@ -75,18 +90,19 @@ O serviço `db` usa `postgres:16-alpine` e aplica o esquema automaticamente na p
 ```bash
 git clone <url-do-repositorio>
 cd bookstore-manager-cli
-cp .env.example .env
+cp .env.local.example .env
 npm ci
+npm run db:init
 ```
 
-Depois, configure e inicialize o banco conforme a seção anterior.
+Antes de `npm run db:init`, crie o usuário e o banco conforme a seção **Banco local**.
 
 ### Com Docker
 
 ```bash
 git clone <url-do-repositorio>
 cd bookstore-manager-cli
-cp .env.example .env
+cp .env.docker.example .env
 docker compose up --build
 ```
 
@@ -206,3 +222,4 @@ Ao listar os empréstimos, a aplicação apresenta o título do livro e o nome d
 ## Kanban
 
 O acompanhamento das atividades do projeto está no [Kanban do Trello](https://trello.com/b/VPXxgKPp/bookstore-manager-cli).
+

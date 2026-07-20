@@ -6,6 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "tsx src/main.ts",
+    "db:init": "tsx src/database/init.ts",
     "build": "tsc",
     "start": "node dist/main.js"
   },
