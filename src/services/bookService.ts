@@ -26,17 +26,15 @@ export class DefaultBookService implements BookService {
   }
 
   async create(dto: BookCreateDTO): Promise<Book> {
-    this.validate(dto);
+    this.validateCreate(dto);
 
-    if (dto.autorId) {
-      await this.checkAuthorExists(dto.autorId);
-    }
+    await this.checkAuthorExists(dto.autorId);
 
     return this.crudService.create(dto);
   }
 
   async update(id: number, dto: BookUpdateDTO): Promise<Book> {
-    this.validate(dto);
+    this.validateUpdate(dto);
 
     if (dto.autorId !== undefined) {
       await this.checkAuthorExists(dto.autorId);
@@ -61,22 +59,33 @@ export class DefaultBookService implements BookService {
     return this.repository.findByData(dto);
   }
 
-  private validate(dto: BookCreateDTO | BookUpdateDTO): void {
+  private validateCreate(dto: BookCreateDTO): void {
+    this.validateCommonFields(dto);
+
+    if (dto.qtdDisponivel < 1) {
+      throw new ValidationError("É preciso ter pelo menos uma unidade de livro para cadastro.");
+    }
+
+    if (dto.autorId < 1) {
+      throw new ValidationError("É preciso informar um id de autor válido.");
+    }
+  }
+
+  private validateUpdate(dto: BookUpdateDTO): void {
+    this.validateCommonFields(dto);
+
+    if (dto.qtdDisponivel !== undefined && dto.qtdDisponivel < 0) {
+      throw new ValidationError("A quantidade disponível não pode ser negativa.");
+    }
+
+    if (dto.autorId !== undefined && dto.autorId < 1) {
+      throw new ValidationError("É preciso informar um id de autor válido.");
+    }
+  }
+
+  private validateCommonFields(dto: BookCreateDTO | BookUpdateDTO): void {
     if (dto.titulo !== undefined && dto.titulo.trim().length === 0) {
       throw new ValidationError("O título do livro não pode ser vazio.");
-    }
-
-    if (
-      dto.qtdDisponivel !== undefined &&
-      dto.qtdDisponivel < 1
-    ) {
-      throw new ValidationError(
-        "É preciso ter pelo menos uma unidade de livro para cadastro."
-      );
-    }
-
-    if (!dto.autorId) {
-      throw new ValidationError("É preciso informar um id de autor.");
     }
   }
 
