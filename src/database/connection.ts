@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import path from "node:path";
 import { Pool } from "pg";
 
-config({ path: path.resolve(__dirname, "../../.env"), quiet: false })
+config({ path: path.resolve(__dirname, "../../.env"), quiet: true })
 
 export const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
@@ -16,8 +16,4 @@ export const pool = new Pool({
 
 pool.on("error", () => {
   console.error("A conexão com o banco de dados foi interrompida.")
-})
-
-pool.on("connect", () => {
-  console.log("Conexão estabelecida com o banco de dados.")
 })

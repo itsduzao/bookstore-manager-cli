@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
 
-config({ path: path.resolve(__dirname, "../../.env"), quiet: false });
+config({ path: path.resolve(__dirname, "../../.env"), quiet: true });
 
 async function initializeDatabase() {
   const schemaPath = path.resolve(__dirname, "schema.sql");
