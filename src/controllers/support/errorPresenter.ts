@@ -32,6 +32,10 @@ function isDatabaseError(error: unknown): error is DatabaseDriverError {
 }
 
 function databaseErrorMessage(code: unknown): string {
+  if (code === "23505") {
+    return "Já existe um cliente cadastrado com este e-mail.";
+  }
+
   if (typeof code === "string" && (code.startsWith("08") || CONNECTION_ERROR_CODES.has(code))) {
     return "Não foi possível conectar ao banco de dados. Verifique a conexão e tente novamente.";
   }
